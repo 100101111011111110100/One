@@ -6,20 +6,20 @@
 #define SIZE 1000
 #define S 15
 
-int table[S][S]={
+
+
+int main(){
+    char *hor[SIZE]={"MACHINE","COMMITTEE","INCOME","MOTORING"};
+    char que[SIZE]={""};
+
+    int table[S][S]={
     {0},{0},{0},
     {0},{0},{0},
     {0},{0},{0},
     {0}
     };
-int num[SIZE]={0};
-
-char *hor[SIZE]={"ABNEY","GRUFF"};
-char *ver[SIZE]={"DINGO","FLUSH"};
-char **wor[]={hor,ver};
-char que[SIZE]={""};
-
-int main(){
+    int num[SIZE]={0};
+    int x=0,y=0;
 
     return 0;
 }
