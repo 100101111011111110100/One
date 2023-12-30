@@ -126,3 +126,6 @@ void p(int size){
         }
     }
 }
+void h_w(){
+    puts("Hello world!");
+}
