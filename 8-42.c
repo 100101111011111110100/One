@@ -23,6 +23,7 @@ void p(int size);
 int g_field();
 
 int main(){
+    puts("Hello world");
     g_field();
     puts(" ");
     return 0;
@@ -125,7 +126,4 @@ void p(int size){
             puts(" ");
         }
     }
-}
-void h_w(){
-    puts("Hello world!");
 }
