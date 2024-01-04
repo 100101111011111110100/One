@@ -83,7 +83,7 @@ void pr(int x, int y, char *s,int t[][S],int *v){
 int con(char *s_o,char *s_n){
     int i=0;
     for(char *c=s_n;*c;c++){
-        for (; *(s_o+i); i++){
+        for (i=0; *(s_o+i); i++){
             if(*c==*(s_o+i))
                 return i;
         }
