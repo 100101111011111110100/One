@@ -129,6 +129,3 @@ int take(int *x,int *y,int *n_x,int *n_y){
     }
     return 0;
 }
-
-
-
