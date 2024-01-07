@@ -27,14 +27,21 @@ int main(){
 }
 
 void p( int *a){
+    int j=0;
+    printf("%4c",' ');
+    for (size_t i = 0; i<S; i++)
+        printf("%4d",i);
+    printf("\n");
     for (size_t i = 0; i<(S*S); i++){
-        if (i!=0&&(i%S==0))
-            puts(" ");
+        if (i%S==0)
+            printf("%4d",j++);
         if(isalpha(*(a+i)))
-            printf("%3c",*(a+i));
-        else 
-            printf("%3d",*(a+i));
-        //printf("%3d",*(a+i));    
+            printf("%4c",*(a+i));
+        else{
+            printf("%4d",*(a+i));
+        }
+        if (i!=0&&(i%S==14))
+            puts(" ");
     }
     puts(" ");
 }
@@ -48,6 +55,7 @@ int vec(int *x, int *y, int t[][S], char **s){
         v=i%2;
         if (i &&con(*(s+(i-1)),*(s+i),&n_x,&n_y)){
            //printf("x is %d || y is %d \nn_x is %d || n_y is %d\n",*x,*y,n_x,n_y);
+            --n_y;
             if(v){
                 take(x,y,&n_y,&n_x);
             }else {
@@ -56,14 +64,15 @@ int vec(int *x, int *y, int t[][S], char **s){
         }
         if(v){
             t[(*x)++][*y]=i+1;
-            //printf("v||x is %d y is %d\n",*x,*y);           
+            printf("v||x is %d y is %d\n",*x,*y);           
             p(&t[0][0]);    
         }else{
             t[*x][(*y)++]=i+1;
-            //printf("not v||x is %d y is %d\n",*x,*y);
+            printf("not v||x is %d y is %d\n",*x,*y);
         }
         pr(*x,*y,*(s+i),t,&v);
         p(&t[0][0]);
+        puts(" ");
     }
 }
 
@@ -110,7 +119,7 @@ int con(char *s_o,char *s_n,int *x,int *y){
 int take(int *x,int *y,int *n_x,int *n_y){
     int new_x=0,new_y=0;
     printf("take : x is %d y is %d\n new_x is %d new_y is %d",*x,*y,*n_x,*n_y);
-    new_x=*x+(*n_x-1);
+    new_x=*x+*n_x;
     new_y=*y+*n_y;
     printf("take :x is %d y is %d\n",new_x,new_y);
     if (new_x>=0&&new_y>=0){
