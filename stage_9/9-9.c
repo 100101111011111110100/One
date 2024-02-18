@@ -1,14 +1,15 @@
-#include<stdio.h>
-/**/
+#include <stdio.h>
+
 int main(){
-    int x=0;
-    int *x_ptr=&x;
-    printf("P %p\n",x_ptr);
-    puts("===========");
-    printf("D :%d\nI :%d\nO :%o\nX : %x\n",x_ptr,x_ptr,x_ptr,x_ptr);
-    printf("E :%e\nF :%f\nG :%g\n",x_ptr,x_ptr,x_ptr);
-    printf("C :%c\nS :%s\n",x_ptr,x_ptr);
-    
+    int a=12345;
+    float b=1.2345;
+    {
+        for (int i = 1; i < 11; i++){
+            printf("%10c %-d\n",'N',i);
+            printf("%*d || %*.*f\n",i,a,i,i,b);
+            puts("=================");
+        }
+    }
     puts(" ");
     return 0;
 }
