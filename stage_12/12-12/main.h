@@ -43,11 +43,16 @@
    }
    char pop(node ** head){
       int c = (*head)->c;
+      //printf("!%p %c ->%p!\n",*head,(*head)->c,(*head)->n_ptr);
       if((*head)->n_ptr!=NULL){
       node * tmp = (*head);
       *head=(*head)->n_ptr;
+      //printf("!%p %c ->%p!\n",*head,(*head)->c,(*head)->n_ptr);
       free(tmp);
-      }else free(*head);
+      }else{
+      free(*head);
+      *head=NULL;
+      }
       return c;
    }
    int add_list(node ** head,char c){
@@ -80,7 +85,7 @@
    
    int priority(char c){
       int res=0;
-      if((c>='A'&&c<='Z')||(c>='a'&&c<'z'))res=1;
+      if((c>='A'&&c<='Z')||(c>='a'&&c<'z')||(c>='0'&&c<='9'))res=1;
       else if(c=='+'||c=='-'||c=='*'||c=='/'||c=='%'||c=='^'||c=='('||c==')') res=2;
       return res;
    }
@@ -94,22 +99,27 @@
    }
    int operation(node * head,node ** stack,int c){
       int flag=1;
+      printf("%c !%d!\n==========\nstack:",c,c == ')');
+      
+      
       if (head==NULL) flag=0;
       else if(*stack==NULL){ 
          *stack=init(c);
          if(stack==NULL)   flag=0;
-      }else if(oper_priority((*stack)->c)<oper_priority(c) && head != NULL){
+      }else if (c==')'){
+         while((*stack)->c!='(') insert(head,NULL,pop(&(*stack)));
+         pop(&(*stack));
+      }else if(oper_priority((*stack)->c)<oper_priority(c)){
          *stack=push(*stack,c);
-      }else if (oper_priority((*stack)->c)>=oper_priority(c) && head !=NULL){
-         while(oper_priority((*stack)->c)>=oper_priority(c)){
-            insert(head,NULL,pop(stack));
+      }else if (oper_priority((*stack)->c)>=oper_priority(c)){
+         //printf("%d >= %d \n",oper_priority((*stack)->c),oper_priority(c));
+         while((*stack)->c!='(' && oper_priority((*stack)->c)>=oper_priority(c)){
+            insert(head,NULL,pop(&(*stack)));
          }
-      }else if(oper_priority(c)==3){
-         while(oper_priority((*stack)->c)!=oper_priority(c)){
-            insert(head,NULL,pop(stack));
-         }
-         pop(stack);
+         *stack=push(*stack,c);
       }
+     print(*stack);      
+     puts("==========");
       return flag;
    }
    node * polish(node * list){
@@ -120,20 +130,23 @@
          switch(priority(list->c)){
             case 1:
                flag = add_list(&head,list->c);
-               printf("%c %p || \n",head->c,head->n_ptr);
-               ////list=list->n_ptr;
+               //printf("%c %p || \n",head->c,head->n_ptr);
                break;
             case 2:
-               puts("2");
                flag=operation(head,&stack,list->c);
                break;
             default:
                break;
          }
          list=list->n_ptr;
-         print(head);
+      } 
+      while(stack!=NULL){
+         //printf("%p %c\n",stack,stack->c);
+         char t=pop(&stack);
+         insert(head,NULL,t);
+         //printf("%p %c\n",stack,stack->c);
       }
-      while(stack!=NULL) insert(head,NULL,pop(&stack));
+      print(stack);
       if(stack!=NULL) delet(stack);
       return head;
    }
