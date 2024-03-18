@@ -99,9 +99,7 @@
    }
    int operation(node * head,node ** stack,int c){
       int flag=1;
-      printf("%c !%d!\n==========\nstack:",c,c == ')');
-      
-      
+      printf("%c !%d!\n==========\nstack:",c,c == ')'); 
       if (head==NULL) flag=0;
       else if(*stack==NULL){ 
          *stack=init(c);
@@ -112,7 +110,6 @@
       }else if(oper_priority((*stack)->c)<oper_priority(c)){
          *stack=push(*stack,c);
       }else if (oper_priority((*stack)->c)>=oper_priority(c)){
-         //printf("%d >= %d \n",oper_priority((*stack)->c),oper_priority(c));
          while((*stack)->c!='(' && oper_priority((*stack)->c)>=oper_priority(c)){
             insert(head,NULL,pop(&(*stack)));
          }
@@ -130,7 +127,6 @@
          switch(priority(list->c)){
             case 1:
                flag = add_list(&head,list->c);
-               //printf("%c %p || \n",head->c,head->n_ptr);
                break;
             case 2:
                flag=operation(head,&stack,list->c);
@@ -141,13 +137,20 @@
          list=list->n_ptr;
       } 
       while(stack!=NULL){
-         //printf("%p %c\n",stack,stack->c);
-         char t=pop(&stack);
-         insert(head,NULL,t);
+         //printf("%p %c\n",stack,stack->c); 
+         insert(head,NULL,pop(&stack););
          //printf("%p %c\n",stack,stack->c);
       }
-      print(stack);
       if(stack!=NULL) delet(stack);
       return head;
    }
+   double mth(node * pol){
+      double res=0;
+      node * stack=NULL;
+      while(pol!=NULL){
+         switch(priority(pol->c)){
+         }
+         pol=pol->n_ptr;
+      }
+      }
 #endif
