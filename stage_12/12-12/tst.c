@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+
    union value{
       char c;
       double i;
@@ -95,7 +97,7 @@
       if (head==NULL) flag=0;
       else if(*stack==NULL){ 
             *stack=init(n);
-            printf(" NULL : ");
+            //printf(" NULL : ");
             print(*stack);
             if(stack==NULL)   flag=0;
       }else if (n.c==')'){
@@ -116,30 +118,59 @@
       }
       return flag;
    } 
-
+   node * restruct(node * head){
+      while(head->number.c!=','){
+         node * t =   head;
+         head->n_ptr=t->n_ptr;
+         head=head->n_ptr;
+         free(t);    
+      }
+      return head;
+   }
+   double fnd_num(node ** stack){
+      double res=0;
+      int a[]={48,49,50,51,52,53,54,55,56,57};
+      for(int i=0;*stack!=NULL;i++){
+         int j=0;
+         for(;j<10 && a[j]!=(*stack)->number.c ;j++) ;
+         res+=(double)j*pow(10,i);
+         pop(&(*stack));
+      }
+      return res;
+   }
+   
 
    int translate(node * head){
       int flag=0;
       node * stack =NULL;
-      while(head->number.c!=','){
+      node * tmp = head;
+      while(tmp->n_ptr->number.c!=','){
          if(stack!=NULL){
             push(&stack,head->number);
          }else{
             stack=init(head->number);
          }
+         tmp=tmp->n_ptr;
       }
       print(stack);
+      if(head != tmp)   head->n_ptr=restruct(head->n_ptr);
+      head->number.i=fnd_num(&stack);
+      printf("!%lf!\n",head->number.i);
+      //print(head);
+      //print(stack);
       delet(stack);
       return flag;
    }
 
    void convToNum(node * head){
+      printf("Conv : ");
+      print(head);
       while(head!=NULL){
-         if(priority(head->number)==2||head->number.c==','){
+         if(priority(head->number)==2||head->number.c==','){ 
             head=head->n_ptr;
             continue;
          }
-         printf("%c %")
+         //printf("%c %p\n",head->number.c,head);
          translate(head);
          head=head->n_ptr;
       }
