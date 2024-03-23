@@ -9,28 +9,30 @@
    };
    typedef struct node{
       union value number;
+      int type;
       struct node * n_ptr;
    }node;
    
-   node * init(union value v){
+   node * init(union value v,int type){
       node * elem = (node*)malloc(sizeof(node));
       if(elem!=NULL){
          elem->number=v;
+         elem->type=type;
          elem->n_ptr=NULL;
       }
       return elem;
    }
-   int insert(node * head,node * place,union value v){
+   int insert(node * head,node * place,union value v, int t){
       int flag =1;
-      node * elem =init(v);
+      node * elem =init(v,t);
       if(elem !=NULL){
          while(head->n_ptr!=place) head=head->n_ptr;
          head->n_ptr=elem;
       }else flag=0;
       return flag;
       }
-   void push(node ** head, union value v){
-      node * elem =init(v);
+   void push(node ** head, union value v,int t){
+      node * elem =init(v,t);
       if(elem!=NULL){
          elem->n_ptr=*head;
          *head=elem;
@@ -58,24 +60,26 @@
    }
    void print(node * elem){
       while(elem!=NULL){
-         putchar(elem->number.c);
+         if(elem->type) printf("%lf",elem->number.i);
+         else  putchar(elem->number.c);
          elem=elem->n_ptr;
       }
       putchar('\n');
    }
-   int add_list(node ** head,union value n){
+   int add_list(node ** head,union value n,int t){
       int flag=1;
       if((*head)!=NULL){ 
-         if(!insert(*head,NULL,n)) flag=0;
+         if(!insert(*head,NULL,n,t)) flag=0;
       }else{
-         if((*head=init(n))==NULL) flag=0;
+         if((*head=init(n,t))==NULL) flag=0;
       }
       return flag;
    }
 
   int priority(union value n){
       int res=0;
-      if((n.c>='A'&&n.c<='Z')||(n.c>='a'&&n.c<='z')||(n.c>='0'&&n.c<='9')) res=1;
+      //(n.c>='A'&&n.c<='Z')||(n.c>='a'&&n.c<='z')||
+      if(n.c>='0'&&n.c<='9') res=1;
       else if  (n.c=='+'||n.c=='-'||n.c=='*'||n.c=='/'||n.c=='%'||n.c=='^'||n.c=='('||n.c==')') res=2;
       return res;
   }
@@ -92,29 +96,27 @@
       int j=oper_priority(n);
       union value d;
       d.c=',';
-      if(oper_priority(n)!=3) add_list(&head,d);
+      if(oper_priority(n)!=3) add_list(&head,d,0);
       //printf("!%p!\n",*stack);
       if (head==NULL) flag=0;
       else if(*stack==NULL){ 
-            *stack=init(n);
+            *stack=init(n,0);
             //printf(" NULL : ");
-            print(*stack);
+            //print(*stack);
             if(stack==NULL)   flag=0;
       }else if (n.c==')'){
-            add_list(&head,d);
+            add_list(&head,d,0);
             while((*stack)->number.c!='('){
-               insert(head,NULL,pop(&(*stack)));
-               //add_list(&head,d);
+               insert(head,NULL,pop(&(*stack)),0);
             }pop(&(*stack));
       }else if(oper_priority((*stack)->number) <j){
-         push(&(*stack),n);
-         //add_list(&head,d);
+         push(&(*stack),n,0);
       }else if (oper_priority((*stack)->number) >=j){
          while((*stack)->number.c!='(' && oper_priority((*stack)->number)>=j){
-            insert(head,NULL,pop(&(*stack)));
-            add_list(&head,d);
+            insert(head,NULL,pop(&(*stack)),0);
+            add_list(&head,d,0);
          }
-         push(&(*stack),n);
+         push(&(*stack),n,0);
       }
       return flag;
    } 
@@ -144,18 +146,20 @@
       int flag=0;
       node * stack =NULL;
       node * tmp = head;
-      while(tmp->n_ptr->number.c!=','){
+      // printf("translate : %p == %c \n",head,head->number.c);
+      while(tmp->number.c!=','){
          if(stack!=NULL){
-            push(&stack,head->number);
+            push(&stack,head->number,0);
          }else{
-            stack=init(head->number);
+            stack=init(head->number,0);
          }
          tmp=tmp->n_ptr;
       }
-      print(stack);
       if(head != tmp)   head->n_ptr=restruct(head->n_ptr);
+      // printf("%c ==",head->number.c);
       head->number.i=fnd_num(&stack);
-      printf("!%lf!\n",head->number.i);
+      head->type=1;
+      // printf("!%lf!\n",head->number.i);
       //print(head);
       //print(stack);
       delet(stack);
@@ -163,8 +167,8 @@
    }
 
    void convToNum(node * head){
-      printf("Conv : ");
-      print(head);
+      // printf("Conv : ");
+      // print(head);
       while(head!=NULL){
          if(priority(head->number)==2||head->number.c==','){ 
             head=head->n_ptr;
@@ -174,6 +178,7 @@
          translate(head);
          head=head->n_ptr;
       }
+      
    }
 
 
@@ -186,7 +191,7 @@
       while(flag && head !=NULL){
          switch(priority(head->number)){
                case 1:
-                  flag=add_list(&result,head->number);
+                  flag=add_list(&result,head->number,0);
                   //flag=add_list(&result,d);
                   break;
                case 2:
@@ -194,41 +199,99 @@
                   flag=operation(result,&stack,head->number);
                   break;
                default:
+                  delet(head);
+                  if(stack != NULL) delet(stack);
+                  if(result !=NULL) delet(result);
+                  printf("n/a\n");
+                  result=NULL;
                   break;
          } 
          head=head->n_ptr;
       }   
       while(stack!=NULL){
-         add_list(&result,d);
-         insert(result,NULL,pop(&stack));
+         add_list(&result,d,0);
+         insert(result,NULL,pop(&stack),0);
          //add_list(&result,d);
       }
-      convToNum(result);
+      if(result !=NULL) convToNum(result);
       return result;
    } 
-   /*
-   double mth(node * p){
-      double res=0;
-      int flag;
+   int ar_op(char c){
+      int i=0;
+      if(c=='+') i=1;
+      else if(c=='-') i=2;
+      else if(c=='*') i=3;
+      else if(c=='/') i=4;
+      else if(c=='%') i=5;
+      else if(c=='^') i=6;
+      return i;
+   }
+   int calculate(node ** head,int i){
+      double a;
+      int flag=1;
+      if((*head)->n_ptr!=NULL){
+      a=(*head)->number.i;  
+      pop(&(*head));
+      }else flag=0;
+      printf("calculate : %d\n",i);
+      if(flag){
+         switch (i){
+         case 1:
+            (*head)->number.i+=a;
+            break;
+         case 2:
+            (*head)->number.i-=a;
+            break;
+         case 3:
+            (*head)->number.i*=a;
+            break;
+         case 4:
+            (*head)->number.i/=a;
+            break;
+         case 5:
+            (*head)->number.i=(int)(*head)->number.i%(int)a;
+            break;
+         case 6:
+            pow((*head)->number.i,a);
+            break;
+         default:
+            flag=0;
+            break;
+         }
+      }
+      return flag;
+   }
+
+   ///*
+   node *  mth(node * p){
+      int flag=1;
       node * stack=NULL;
       while(flag && p!=NULL){
-         switch(priority(p->number)){
-            case 1:
-               pop
-               break;
-            case 2:
-               break;
-            default:
-               break;
-         } 
+         if(p->type==0 && p->number.c ==',') ;
+         else if(p->type){
+            push(&stack,p->number,p->type);
+         }else if (p->type==0 && priority(p->number)==2){
+           flag=calculate(&stack,ar_op(p->number.c));
+         }
+         printf("mth : ");
+         print(stack);
          p=p->n_ptr;
       }
-   }*/
+      if(flag==0){
+         delet(stack);
+         delet(p);
+         printf("n/a");
+         stack=NULL;
+      }
+      return stack;
+   }
+   //*/
+
    node * user_init(){
       node * head =NULL;
       int flag=1;
       union value n;
-      while( flag && (( n.c=getchar() )!='\0' && n.c!='\n' )) add_list(&head,n);
+      while( flag && (( n.c=getchar() )!='\0' && n.c!='\n' )) add_list(&head,n,0);
       return head;
    }
    
@@ -237,9 +300,11 @@
 int main(){
    node * list =user_init();
    node * p=pol(list);
-   print(p);
-   delet(list);
-   delet(p);
+   node * res=mth(p);
+   print(res);
+   if(res!=NULL) delet(res);
+   if(list !=NULL)delet(list);
+   if(p !=NULL)delet(p);
    putchar('\n');
    return 0;
 }
