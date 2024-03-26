@@ -18,12 +18,17 @@
 		if(scanf("%d",&i)!=1)	i=0;
 		return i;
 	}
+   void clear(){
+      int c;
+      while((c=getchar())!='\0' && c!='\n');
+   }
 	void print(){
 		printf("%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n","****","Simpletron welcome you !","****","****","PLease typing your program, one by one command","****","****","(or data words) at a time. I will output the current","****","****","addres and a question mark (?) as a hint. the word you entered","****","****","will be placed at the specified address.","****");
 	}
 	int command_init(node *  memory,int choise){
 		int flag=1;
 		for(int i=0,j=0;flag && i<MEM;i++){
+         printf("%02d? : ",i);
 			switch(choise){
 				case 1: scanf("%d",&j);
 					break;
@@ -37,6 +42,7 @@
 			int a=memory[i].num.i/10000;
 			if(a>9||a<-9)	 flag=0;
 			memory[i].type=0;
+         clear();
 		}
 		return flag;
 	}
@@ -90,7 +96,7 @@
 		switch(command/1000){
 			case 20:
 				int j=command%1000;
-				if(j<MEM &&mem[j].type)	*ram=mem[j].num.d;
+				if(j<MEM &&mem[j].type==1)	*ram=mem[j].num.d;
 				else if(j<MEM && mem[j].type==0) *ram=mem[j].num.i;
 				else flag=0;
 				break;
@@ -107,12 +113,109 @@
 		}
 		return flag;
 	}
+   
+   int arithmetic(node * mem,int command,double * ram){
+      int flag=1;
+      int j=command%1000;
+      if(j>MEM) flag=0;
+      else if(mem[j].type==1){
+         switch(command/1000){
+            case 30:
+                  *ram+=mem[j].num.d;
+                  break;
+            case 31:
+                  *ram-=mem[j].num.d;
+                  break;
+            case 32:
+                  if(mem[j].num.d==0){
+                     flag=0;
+                     puts("division by zero");
+                  }else *ram/=mem[j].num.d;
+                     break;
+            case 33:
+                     *ram*=mem[j].num.d;
+                     break;
+            case 34:
+                     *ram=(int)*ram%(int)mem[j].num.d;
+                     break;
+            case 35:
+                     *ram=pow(*ram,mem[j].num.d);
+                     break;
+            default:
+                  flag=0;
+                  break;
+         }
+      }else flag=0;
+      return flag;
+   }
 
+   int control(node * mem, int command,int * pos,double * ram){
+      int flag=1;
+      int j=command%1000;
+      puts("1");
+      if(j<MEM && mem[j].type==0){
+      switch(command/1000){
+         case 40:
+               *pos=j-1;
+               break;
+         case 41:
+               if(* ram <0)   *pos=j-1;
+               break;
+         case 42:
+               if(*ram==0) *pos=j-1;
+               break;
+         default:
+               flag=0;
+               break;
+      }
+      }
+      return flag;
+   }
+   void str_in(node * mem,int j){
+      int flag=1;
+      clear();
+      for(int c; (c=getchar())!='\0' && c!='\n';j++){
+         mem[j].num.i=c;
+         mem[j].type=3;
+         if(j+2>=MEM){
+            flag=0;
+            mem[j+1].num.i='\0';
+            mem[j+1].type=3;
+            break;
+         }
+         if(flag){
+            mem[++j].num.i='\0';
+            mem[j].type=3;
+         } 
+   }
+   }
+   void str_out(node * mem,int j){
+      for(;j<MEM && mem[j].type==3 && mem[j].num.i!='\n';j++)  putchar(mem[j].num.i);
+      putchar('\n');
+   }
+   int string(node * mem,int command){
+      int flag=1;
+      int j=command%1000;
+      if(j>MEM)   flag=0;
+      else{
+         switch(command/1000){
+            case 50:
+                  str_in(mem,j);             
+                  break;
+            case 51:
+                  str_out(mem,j);
+                  break;
+            default:
+                  flag=0;
+                  break;
+         }
+      }
+      return flag;
+   }
 	int brain(node * mem){
 		int flag =1;
 		double ram=0;
 		for(int i=0;flag && i<MEM && mem[i].num.i!=43000 && mem[i].type==0;i++){
-			//printf("%d!\n",mem[i].num.i);
 			switch(mem[i].num.i/10000){
 				case 1:
 					flag=in_out(mem[i].num.i,mem);
@@ -121,14 +224,29 @@
 					flag=r_access_memory(mem,&ram,mem[i].num.i);
 					break;
 				case 3:
+               flag=arithmetic(mem,mem[i].num.i,&ram);
 					break;
 				case 4:
+               flag=control(mem,mem[i].num.i,&i,&ram);
 					break;
-				default:
+            case 5:
+               flag=string(mem,mem[i].num.i);
+               break;
+            default:
 					break;
 			}
 		}
 		//printf("%f",ram);
 		return flag;
 	}
+   void dumb_print(node * mem){
+      for(int i=1;i<10;i++)   printf("%4d",i);
+      for(int i=0,j=0;i<MEM;i++){
+         if(i%10 ==0){
+            printf("\n%2d :",j++);
+         }
+         if(mem[i].type==0 || mem[i].type==3)   printf("%7d",mem[i].num.i);
+         else  printf("%#lf",mem[i].num.d);
+      }
+   }
 #endif
