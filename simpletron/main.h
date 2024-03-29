@@ -14,7 +14,7 @@
 	
 	int choise(){
 		int i;
-		printf("%s\n1%s|%d %s\n2%s|%X %s\n","Choise :"," -- Decimal",-99999," -- to finish typing"," -- Hexadecimal",-99999," -- to finish typing ");
+		//printf("%s\n1%s|%d %s\n2%s|%X %s\n","Choise :"," -- Decimal",-99999," -- to finish typing"," -- Hexadecimal",-99999," -- to finish typing ");
 		if(scanf("%d",&i)!=1)	i=0;
 		return i;
 	}
@@ -25,8 +25,34 @@
 	void print(){
 		printf("%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n%-4s %50s %-4s\n","****","Simpletron welcome you !","****","****","PLease typing your program, one by one command","****","****","(or data words) at a time. I will output the current","****","****","addres and a question mark (?) as a hint. the word you entered","****","****","will be placed at the specified address.","****");
 	}
+   int empty_check(FILE * a){
+      int flag=1;
+      fseek(a,0,SEEK_END);
+      if(ftell(a)==0) flag=0;
+      fseek(a,0,SEEK_SET);
+      return flag;
+   }
+   int command_read(node * memory){
+      int flag=1;
+      FILE * com_file=NULL;
+      if(flag) com_file=fopen("sml/tst.sml","rb");
+      if(com_file!=NULL)   flag=empty_check(com_file);
+      else flag=0;
+      for(int i=0;flag && i<MEM ;i++){
+         int v;
+         if(fread(&v,sizeof(int),1,com_file)==1){
+            memory[i].num.i=v;
+            memory[i].type=0; 
+         }else break;
+      }
+      if(com_file!=NULL)   fclose(com_file);
+      return flag;
+   }
+   /*Не знаю как побороть проверку на корректность ввода даных из файла
+    * Так как если буду проверка в цикле мешает корректной обработке 
+    */
 	int command_init(node *  memory,int choise){
-		int flag=1;
+      int flag=1;
 		for(int i=0,j=0;flag && i<MEM;i++){
          printf("%02d? : ",i);
 			switch(choise){
@@ -37,6 +63,7 @@
 				default:	flag=0;
 					break;
 			}
+         //if(scanf("%d",&j)!=1)   flag=0;
 			if(j==-99999) break;
 			memory[i].num.i=j;
 			int a=memory[i].num.i/10000;
@@ -46,13 +73,8 @@
 		}
 		return flag;
 	}
-		
 	int input(node * mem,int i){
 		int flag=1;
-		{
-			int c;
-			while((c=getchar())!='\n' && c!='\0')	;
-		}
 		if(i>=0 && i<MEM){
 			if(scanf("%lf",&mem[i].num.d)!=1)	flag=0;
 		}else	flag=0;
