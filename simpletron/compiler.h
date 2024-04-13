@@ -5,7 +5,15 @@
    #define SIZE 1000
    #define READ 10
    #define WRITE 11
+   #define LOAD 20
+   #define STORE 21
+   #define ADD 30
+   #define SUBTRACT 31
+   #define DIVIDE 32
+   #define MULTIPLY 33
    #define BRANCH 40
+   #define BRANCHNEG 41
+   #define BRANCHZERO 42
    #define HALT 43
    struct tableEntry {
       int symbol;
@@ -41,7 +49,11 @@
       else if(strcmp(s_ptr,"end")==0)  flag=7;
       return flag;
    }
-
+   int checkMemSize(int a){
+      int flag=0;
+      if(a>=0 && a<SIZE)   flag=1;
+      return flag;
+   }
 
    int insertDic(int symbol,struct tableEntry * dic, int * count,int * pos,int i){
       int flag=1;
@@ -76,23 +88,21 @@
    }
    int fndDic(char * command,struct tableEntry * dic,int type){
       int flag=-1;
-      for(int i=0;i<SIZE;i++){
-         switch(type){
-            case 86:
-               if(flag==-1){
-                  flag=isalpha(*command);
-                  if(flag > 0)   flag=-2;
-               }
-               if(flag==-2 && dic[i].type==type && dic[i].symbol==(int)*command)  flag=dic[i].location;
-             break;
-            case 76:
-               int j=atoi(command);
-               if(dic[i].type==type && dic[i].symbol==j) flag=dic[i].location;
-             break;
-            default:
-               break;
-            }  
-      }
+      switch(type){
+         case 86:
+            if(flag==-1){
+               flag=isalpha(*command);
+               if(flag > 0)   flag=-2;
+            }
+            for(int i=SIZE;i>0;i--) if(flag==-2 && dic[i].type==type && dic[i].symbol==(int)*command)  flag=dic[i].location;
+         break;
+         case 76:
+            int j=atoi(command);
+            for(int i=0;i<SIZE;i++) if(dic[i].type==type && dic[i].symbol==j) flag=dic[i].location;
+         break;
+         default:
+            break;
+      }  
       if(flag<-1) flag=-1;
       return flag;
    }
@@ -124,6 +134,66 @@
       if(*(lCount)<SIZE)mem[(*lCount)++]= HALT *SIZE;
       return flag;
    }
+   //strstr
+   int comparsion(int flag,char * s_ptr){
+      if(flag){
+         if(strcmp("==",s_ptr)==0)  flag=1;
+         else if(strcmp("<",s_ptr)==0) flag=2;
+         else if(strcmp(">",s_ptr)==0) flag=3;
+         else if(strcmp("<=",s_ptr)==0) flag=4;
+         else if(strcmp(">=",s_ptr)==0) flag=5;
+      }
+      return flag;
+   }
+
+   int condition(char * cond,int * mem, struct tableEntry * dic, int *f_mem,int * lCount,int *rCount,int *dCount){
+      int flag=1;
+      char s_ptr;
+      char s_ptr=strtok(cond," ");
+      if(isalpha(s_ptr)){
+         int loc=fndDic(s_ptr,dic,'V');
+         if(loc=!-1 && checkMemSize(*lCount))   mem[(*lCount)++]=LOAD*SIZE+loc;
+         else  flag=0;  
+      }
+      switch(comparsion(flag,strtok(NULL," "))){
+         case 1:
+            mem
+            break;
+         default:
+            flag=0;
+            break;
+      }
+      s_ptr=strtok(cond," ");
+      
+      //ispunct
+      return flag;
+   }
+   int logic(char * s_ptr,int * mem, struct tableEntry * dic, int *f_mem,int * lCount,int *rCount,int *dCount,int *count){
+      int flag=1;
+      switch(checkOper(s_ptr,count)){
+            case 1:
+               flag=insertDic(atoi(s_ptr),dic,dCount,lCount,2);
+               break;
+            case 2:
+               flag=inPut(strtok(NULL," "),mem,dic,lCount,rCount,dCount);
+               break;
+            case 3:
+               break;
+            case 4:
+               flag=prInt(strtok(NULL," "),mem,dic,lCount);
+               break;
+            case 5:
+               flag=goTo(strtok(NULL," "),mem,f_mem,dic,lCount);
+               break;
+            case 7:
+               flag=close(mem,lCount);
+               break;
+            default:
+               flag=0;
+               break;
+         }
+      return flag;
+   }
    int splitAndTranslate (char * command,int * mem, struct tableEntry * dic, int *f_mem,int * lCount,int *rCount,int *dCount){
       int flag=1,count=0,b_point=1;
       char string[SIZE];
@@ -131,28 +201,7 @@
       strcpy(string,command);
       s_ptr=strtok(string," ");
       do{
-         switch(checkOper(s_ptr,&count)){
-            case 1:
-               b_point=insertDic(atoi(s_ptr),dic,dCount,lCount,2);
-               break;
-            case 2:
-               b_point=inPut(strtok(NULL," "),mem,dic,lCount,rCount,dCount);
-               break;
-            case 3:
-               break;
-            case 4:
-               b_point=prInt(strtok(NULL," "),mem,dic,lCount);
-               break;
-            case 5:
-               b_point=goTo(strtok(NULL," "),mem,f_mem,dic,lCount);
-               break;
-            case 7:
-               b_point=close(mem,lCount);
-               break;
-            default:
-               b_point=0;
-               break;
-         }
+         b_point=logic(s_ptr, mem, dic, f_mem, lCount,rCount,dCount,&count);
          count ++ ;
       }while((s_ptr=strtok(NULL," "))&&b_point);
       //printf("%d",f_mem[0]);
