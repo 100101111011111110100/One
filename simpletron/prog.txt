@@ -1,0 +1,13 @@
+10 rem
+15 rem
+20 rem input the two intgeres
+30 input a
+40 input b
+45 rem
+50 rem
+60 let c = a+b
+65 goto 80
+70 goto 65
+80 print c
+90 rem 
+99 end 
